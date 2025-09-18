@@ -28,19 +28,36 @@ public class RechargeController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Recharge> findById(@PathVariable String id) {
+    // GET by ID
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Recharge> getById(@PathVariable String id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @PutMapping("/{id}")
+    // GET by memberId
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<Recharge>> getByMemberId(@PathVariable String memberId) {
+        return ResponseEntity.ok(service.findByMemberId(memberId));
+    }
+
+    // GET by amount
+    @GetMapping("/amount/{amount}")
+    public ResponseEntity<List<Recharge>> getByAmount(@PathVariable float amount) {
+        return ResponseEntity.ok(service.findByAmount(amount));
+    }
+
+    // UPDATE by ID
+    @PutMapping("/id/{id}")
     public ResponseEntity<Recharge> update(@PathVariable String id, @RequestBody Recharge recharge) {
         return ResponseEntity.ok(service.update(id, recharge));
     }
 
-    @DeleteMapping("/{id}")
+
+    // DELETE by ID
+    @DeleteMapping("/id/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
 }

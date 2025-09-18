@@ -18,30 +18,62 @@ public class admin_usersController {
         this.service = service;
     }
 
+    // CREATE
     @PostMapping
     public ResponseEntity<admin_users> create(@RequestBody admin_users user) {
-        admin_users created = service.create(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user));
     }
 
+    // READ ALL or SEARCH
     @GetMapping
-    public ResponseEntity<List<admin_users>> findAll() {
+    public ResponseEntity<List<admin_users>> findAll(
+            @RequestParam(required = false, name = "username_like") String usernameLike) {
+
+        if (usernameLike != null && !usernameLike.isBlank()) {
+            // This will return only users containing the username_like string
+            return ResponseEntity.ok(service.searchByUsername(usernameLike));
+        }
+
+        // No query param → return all users
         return ResponseEntity.ok(service.findAll());
     }
 
+    // Optional: Keep legacy /search endpoint
+    @GetMapping("/search")
+    public ResponseEntity<List<admin_users>> searchByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.searchByUsername(name));
+    }
+
+    // READ BY ID
     @GetMapping("/{id}")
     public ResponseEntity<admin_users> findById(@PathVariable String id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    // UPDATE BY ID
     @PutMapping("/{id}")
     public ResponseEntity<admin_users> update(@PathVariable String id, @RequestBody admin_users user) {
         return ResponseEntity.ok(service.update(id, user));
     }
 
+    // DELETE BY ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // UPDATE BY USERNAME
+    @PutMapping("/username/{username}")
+    public ResponseEntity<admin_users> updateByUsername(@PathVariable String username,
+                                                        @RequestBody admin_users user) {
+        return ResponseEntity.ok(service.updateByUsername(username, user));
+    }
+
+    // DELETE BY USERNAME
+    @DeleteMapping("/username/{username}")
+    public ResponseEntity<Void> deleteByUsername(@PathVariable String username) {
+        service.deleteByUsername(username);
         return ResponseEntity.noContent().build();
     }
 }

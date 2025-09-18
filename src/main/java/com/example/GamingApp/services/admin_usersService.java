@@ -20,41 +20,76 @@ public class admin_usersService {
         this.repo = repo;
     }
 
+    // CREATE
     public admin_users create(admin_users user) {
-        user.setId(null);
         if (user.getUsername() == null || user.getUsername().isBlank()) {
-            log.error("Username is required");
             throw new BusinessException("Username is required");
         }
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            throw new BusinessException("Password is required");
+        }
+        user.setId(null);
         log.info("Creating admin user: {}", user.getUsername());
         return repo.save(user);
     }
 
+    // READ ALL
     public List<admin_users> findAll() {
-        log.info("Fetching all admin users");
         return repo.findAll();
     }
 
+    // READ BY ID
     public admin_users findById(String id) {
-        log.info("Fetching admin user with id {}", id);
         return repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin user not found: " + id));
     }
 
+    // UPDATE BY ID
     public admin_users update(String id, admin_users updated) {
         admin_users existing = findById(id);
-        existing.setUsername(updated.getUsername());
-        existing.setPassword(updated.getPassword());
-        log.info("Updating admin user {}", id);
+        if (updated.getUsername() != null && !updated.getUsername().isBlank()) {
+            existing.setUsername(updated.getUsername());
+        }
+        if (updated.getPassword() != null && !updated.getPassword().isBlank()) {
+            existing.setPassword(updated.getPassword());
+        }
         return repo.save(existing);
     }
 
+    // DELETE BY ID
     public void delete(String id) {
         if (!repo.existsById(id)) {
-            log.error("Admin user not found with id {}", id);
             throw new ResourceNotFoundException("Admin user not found: " + id);
         }
-        log.info("Deleting admin user {}", id);
         repo.deleteById(id);
+    }
+
+    // SEARCH BY USERNAME (partial match)
+    public List<admin_users> searchByUsername(String username) {
+        List<admin_users> users = repo.findByUsernameContainingIgnoreCase(username);
+        if (users.isEmpty()) {
+            throw new ResourceNotFoundException("No admin users found containing: " + username);
+        }
+        return users;
+    }
+
+    // UPDATE BY USERNAME
+    public admin_users updateByUsername(String username, admin_users updated) {
+        admin_users existing = repo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Admin user not found: " + username));
+        if (updated.getUsername() != null && !updated.getUsername().isBlank()) {
+            existing.setUsername(updated.getUsername());
+        }
+        if (updated.getPassword() != null && !updated.getPassword().isBlank()) {
+            existing.setPassword(updated.getPassword());
+        }
+        return repo.save(existing);
+    }
+
+    // DELETE BY USERNAME
+    public void deleteByUsername(String username) {
+        admin_users existing = repo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Admin user not found: " + username));
+        repo.delete(existing);
     }
 }

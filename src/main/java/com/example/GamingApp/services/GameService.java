@@ -80,4 +80,55 @@ public class GameService {
             throw new BusinessException("Game name is required");
         }
     }
+    public Game updateByName(String name, Game updated) {
+    Game existing = repo.findByName(name)
+            .orElseThrow(() -> new ResourceNotFoundException("Game not found: " + name));
+
+    existing.setName(updated.getName());
+    existing.setPrice(updated.getPrice());
+    existing.setDescription(updated.getDescription());
+    existing.setDuration(updated.getDuration());
+    existing.setStatus(updated.getStatus());
+
+    validate(existing);
+    return repo.save(existing);
+}
+
+public void deleteByName(String name) {
+    Game existing = repo.findByName(name)
+            .orElseThrow(() -> new ResourceNotFoundException("Game not found: " + name));
+    repo.delete(existing);
+}
+public List<Game> searchByName(String name) {
+    List<Game> games = repo.findByNameContainingIgnoreCase(name);
+    if (games.isEmpty()) {
+        throw new ResourceNotFoundException("No games found containing: " + name);
+    }
+    return games;
+}
+public List<Game> findByPrice(float price) {
+    List<Game> games = repo.findByPrice(price);
+    if (games.isEmpty()) throw new ResourceNotFoundException("No games found with price: " + price);
+    return games;
+}
+
+public List<Game> findByDescription(String description) {
+    List<Game> games = repo.findByDescriptionContainingIgnoreCase(description);
+    if (games.isEmpty()) throw new ResourceNotFoundException("No games found with description containing: " + description);
+    return games;
+}
+
+public List<Game> findByDuration(String duration) {
+    List<Game> games = repo.findByDuration(duration);
+    if (games.isEmpty()) throw new ResourceNotFoundException("No games found with duration: " + duration);
+    return games;
+}
+
+public List<Game> findByStatus(String status) {
+    List<Game> games = repo.findByStatus(status);
+    if (games.isEmpty()) throw new ResourceNotFoundException("No games found with status: " + status);
+    return games;
+}
+
+
 }

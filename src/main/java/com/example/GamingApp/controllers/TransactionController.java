@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,19 +29,40 @@ public class TransactionController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Transaction> findById(@PathVariable String id) {
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Transaction> getById(@PathVariable String id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<Transaction>> getByMemberId(@PathVariable String memberId) {
+        return ResponseEntity.ok(service.findByMemberId(memberId));
+    }
+
+    @GetMapping("/game/{gameId}")
+    public ResponseEntity<List<Transaction>> getByGameId(@PathVariable String gameId) {
+        return ResponseEntity.ok(service.findByGameId(gameId));
+    }
+
+    @GetMapping("/amount/{amount}")
+    public ResponseEntity<List<Transaction>> getByAmount(@PathVariable float amount) {
+        return ResponseEntity.ok(service.findByAmount(amount));
+    }
+
+    @GetMapping("/date/{dateTime}")
+    public ResponseEntity<List<Transaction>> getByDate(@PathVariable Date dateTime) {
+        return ResponseEntity.ok(service.findByDateTime(dateTime));
+    }
+
+    @PutMapping("/id/{id}")
     public ResponseEntity<Transaction> update(@PathVariable String id, @RequestBody Transaction transaction) {
         return ResponseEntity.ok(service.update(id, transaction));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+  
 }
