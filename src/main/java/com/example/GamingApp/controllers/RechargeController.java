@@ -1,52 +1,46 @@
 package com.example.GamingApp.controllers;
 
 import com.example.GamingApp.entities.Recharge;
-import com.example.GamingApp.repositories.RechargeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.GamingApp.services.RechargeService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/recharges")
 public class RechargeController {
 
-    @Autowired
-    private RechargeRepository repo;
+    private final RechargeService service;
+
+    public RechargeController(RechargeService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    public Recharge create(@RequestBody Recharge recharge) {
-        recharge.setId(null);
-        return repo.save(recharge);
+    public ResponseEntity<Recharge> create(@RequestBody Recharge recharge) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(recharge));
     }
 
     @GetMapping
-    public List<Recharge> findAll() {
-        return repo.findAll();
+    public ResponseEntity<List<Recharge>> findAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public Recharge findById(@PathVariable String id) {
-        return repo.findById(id).orElse(null);
+    public ResponseEntity<Recharge> findById(@PathVariable String id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PutMapping("/{id}")
-    public Recharge update(@PathVariable String id, @RequestBody Recharge recharge) {
-        Optional<Recharge> optional = repo.findById(id);
-        if (optional.isEmpty()) return null;
-
-        Recharge oldRecharge = optional.get();
-        oldRecharge.setMemberId(recharge.getMemberId());
-        oldRecharge.setAmount(recharge.getAmount());
-
-        return repo.save(oldRecharge);
+    public ResponseEntity<Recharge> update(@PathVariable String id, @RequestBody Recharge recharge) {
+        return ResponseEntity.ok(service.update(id, recharge));
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable String id) {
-        if (!repo.existsById(id)) return false;
-        repo.deleteById(id);
-        return true;
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

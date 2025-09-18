@@ -1,52 +1,46 @@
 package com.example.GamingApp.controllers;
 
 import com.example.GamingApp.entities.Member;
-import com.example.GamingApp.repositories.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.GamingApp.services.MemberService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/members")
 public class MemberController {
-    @Autowired
-    private MemberRepository repo;
+
+    private final MemberService service;
+
+    public MemberController(MemberService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    public Member create(@RequestBody Member member) {
-        member.setId(null);
-        return repo.save(member);
+    public ResponseEntity<Member> create(@RequestBody Member member) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(member));
     }
 
     @GetMapping
-    public List<Member> findAll() {
-        return repo.findAll();
+    public ResponseEntity<List<Member>> findAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public Member findById(@PathVariable String id) {
-        return repo.findById(id).orElse(null);
+    public ResponseEntity<Member> findById(@PathVariable String id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PutMapping("/{id}")
-    public Member update(@PathVariable String id, @RequestBody Member member) {
-        Optional<Member> optional = repo.findById(id);
-        if (optional.isEmpty()) return null;
-
-        Member oldMember = optional.get();
-        oldMember.setName(member.getName());
-        oldMember.setPhone(member.getPhone());
-        oldMember.setBalance(member.getBalance());
-        oldMember.setJoiningDate(member.getJoiningDate());
-
-        return repo.save(oldMember);
+    public ResponseEntity<Member> update(@PathVariable String id, @RequestBody Member member) {
+        return ResponseEntity.ok(service.update(id, member));
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable String id) {
-        if (!repo.existsById(id)) return false;
-        repo.deleteById(id);
-        return true;
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,55 +1,45 @@
 package com.example.GamingApp.controllers;
 
 import com.example.GamingApp.entities.Game;
-import com.example.GamingApp.repositories.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.GamingApp.services.GameService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/games")
 public class GameController {
 
-    @Autowired
-    private GameRepository repo;
+    private final GameService service;
+
+    public GameController(GameService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    public Game create(@RequestBody Game game) {
-        game.setId(null);
-        return repo.save(game);
+    public ResponseEntity<Game> create(@RequestBody Game game) {
+        return ResponseEntity.status(201).body(service.create(game));
     }
 
     @GetMapping
-    public List<Game> findAll() {
-        return repo.findAll();
+    public ResponseEntity<List<Game>> findAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public Game findById(@PathVariable String id) {
-        return repo.findById(id).orElse(null);
+    public ResponseEntity<Game> findById(@PathVariable String id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PutMapping("/{id}")
-    public Game update(@PathVariable String id, @RequestBody Game game) {
-        Optional<Game> optional = repo.findById(id);
-        if (optional.isEmpty()) return null;
-
-        Game oldGame = optional.get();
-        oldGame.setName(game.getName());
-        oldGame.setPrice(game.getPrice());
-        oldGame.setDescription(game.getDescription());
-        oldGame.setDuration(game.getDuration());
-        oldGame.setStatus(game.getStatus());
-
-        return repo.save(oldGame);
+    public ResponseEntity<Game> update(@PathVariable String id, @RequestBody Game game) {
+        return ResponseEntity.ok(service.update(id, game));
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable String id) {
-        if (!repo.existsById(id)) return false;
-        repo.deleteById(id);
-        return true;
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
